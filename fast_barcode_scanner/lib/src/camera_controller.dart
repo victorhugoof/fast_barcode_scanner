@@ -79,6 +79,7 @@ class CameraController {
       DetectionMode detectionMode,
       CameraPosition position,
       void Function(Barcode)? onScan) async {
+    state._error = null;
     state.eventNotifier.value = CameraEvent.init;
 
     try {
@@ -88,10 +89,12 @@ class CameraController {
 
       /// Notify the overlays when a barcode is detected and then call [onDetect].
       _platform.setOnDetectHandler((code) {
+        state._error = null;
         state.eventNotifier.value = CameraEvent.codeFound;
         onScan?.call(code);
       });
 
+      state._error = null;
       state.eventNotifier.value = CameraEvent.resumed;
     } catch (error, stack) {
       state._error = error;
@@ -109,6 +112,7 @@ class CameraController {
     try {
       await _platform.dispose();
       state._previewConfig = null;
+      state._error = null;
       state.eventNotifier.value = CameraEvent.uninitialized;
     } catch (error, stack) {
       state._error = error;
@@ -124,6 +128,7 @@ class CameraController {
   Future<void> pauseDetector() async {
     try {
       await _platform.pause();
+      state._error = null;
       state.eventNotifier.value = CameraEvent.paused;
     } catch (error, stack) {
       state._error = error;
@@ -139,6 +144,7 @@ class CameraController {
   Future<void> resumeDetector() async {
     try {
       await _platform.resume();
+      state._error = null;
       state.eventNotifier.value = CameraEvent.resumed;
     } catch (error, stack) {
       state._error = error;
